@@ -1,0 +1,24 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+    paths: ['kowa-shoji/**', 'ishida-holdings/**', '.github/workflows/deploy.yml']
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: f6f599c75fe54a2dd5c2b7e05472d4a8
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - name: Deploy changed sites
+        run: |
+          for site in kowa-shoji ishida-holdings; do
+            [ -f "$site/index.html" ] || continue
+            if git diff --quiet HEAD~1 HEAD -- "$site" .github/workflows/deploy.yml 2>/dev/null; then echo "skip $site"; continue; fi
+            echo "== deploy $site"
+            npx -y wrangler@3 pages deploy "$site" --project-name "$site" --branch main --commit-dirty=true
+            npx -y wrangler@3 pages deployment list --project-name "$site" 2>&1 | head -8
+          done
