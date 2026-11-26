@@ -1,0 +1,14 @@
+name: Probe
+on:
+  push:
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for q in "東京都渋谷区神宮前2-33-12" "東京都渋谷区神宮前2-31-7" "東京都渋谷区神宮前2丁目31-7" "東京都渋谷区神宮前2丁目31番7号"; do
+            echo "=== $q"
+            curl -sG -A "Mozilla/5.0" "https://maps.google.com/maps" --data-urlencode "q=$q" --data "z=16&output=embed&hl=ja" | grep -oE '\[[^][]{0,40}35\.6[0-9]+,139\.[0-9]+[^][]{0,200}' | head -3
+            curl -sG -A "Mozilla/5.0" "https://maps.google.com/maps" --data-urlencode "q=$q" --data "z=16&output=embed&hl=ja" | grep -oE '"[^"]{0,60}(ビラ|Villa|グロリア|Gloria)[^"]{0,60}"' | sort -u | head -5
+          done
