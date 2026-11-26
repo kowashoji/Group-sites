@@ -12,5 +12,6 @@ jobs:
             curl -sLG -A "Mozilla/5.0 (Macintosh)" -H "Accept-Language: ja" "https://maps.google.com/maps" --data-urlencode "q=$q" --data "z=16&output=embed" -o p.html
             wc -c < p.html
             grep -oE '\\"[^\\"]{0,80}(神宮前|渋谷|グロリア|Gloria|ビラ)[^\\"]{0,80}\\"' p.html | sort -u | head -6
+            sed "s/></>\n</g" p.html | grep -iE "title|meta|href|35\.6" | cut -c1-400 | head -12
             grep -oE '35\.6[0-9]{3,},139\.[0-9]{4,}' p.html | head -2
           done
